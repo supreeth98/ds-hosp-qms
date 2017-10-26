@@ -9,6 +9,8 @@ A Database is stored as a file, that allows to directly enter patient details vi
 #include <fstream>
 #include <conio.h>
 #include <cstdlib>
+#include <cctype>
+
 using namespace std;
 
 /* A Singleton class to get id
@@ -27,13 +29,13 @@ class identity
 
 struct patient
 {
-    char patient_name[100];
+    char patientName[100];
     int age;
     char sex;
 
     char disorder[100];
 
-    int patient_id;
+    int patientID;
     static int number;
 
     patient();
@@ -46,10 +48,14 @@ int patient::number = 0;
 patient *head = NULL;
 patient *tail = NULL;
 
+bool isValid(char[]);
+bool isValid(char);
+bool isValid(int);
+
+static bool error = false;
+
 int main()
 {
-    cout << "HOSPITAL MANAGEMENT SYSTEM\n";
-
     /*
     cout << "Enter username and password.\n";
     string name, password;
@@ -59,6 +65,7 @@ int main()
 
     while(true)
     {
+        cout << "HOSPITAL MANAGEMENT SYSTEM\n";
         cout << "1. Enter new patient details.\n";
         cout << "2. Check Queue.\n";
         cout << "3. Send to doctor.\n";
@@ -73,6 +80,12 @@ int main()
             {
                 patient *temp = new patient;
                 temp->next = temp->prev = NULL;
+
+                if(error)
+                {
+                    delete temp;
+                    break;
+                }
 
                 if(head)
                 {
@@ -100,21 +113,19 @@ int main()
 
                 for(patient *i = head; i; i = i->next)
                 {
-                    cout << "PATIENT NAME : " << i->patient_name << endl;
+                    cout << "PATIENT NAME : " << i->patientName << endl;
                     cout << "PATIENT SEX : " << i->sex << endl;
-                    cout << "PATIENT ID : " << i->patient_id << endl;
+                    cout << "PATIENT ID : " << i->patientID << endl;
                     cout << "DISORDER : " << i->disorder << endl;
                     cout << "\n\n";
                 }
 
                 getch();
-
                 break;
             }
 
         case 3:
             {
-
                 if(!head)
                 {
                     cout << "Your queue is empty!\n";
@@ -124,7 +135,7 @@ int main()
 
                 patient *temp = head;
                 head = head->next;
-                cout << temp->patient_name << " has been sent to the doctor.\n";
+                cout << temp->patientName << " has been sent to the doctor.\n";
                 delete temp;
 
                 getch();
@@ -158,21 +169,55 @@ patient::patient()
 {
     cin.ignore();
     cout << "Enter patient name\n";
-    cin.getline(patient_name, 100);
+    try
+    {
+        cin.getline(patientName, 100);
 
-    cout << "Enter age.\n";
-    cin >> age;
+        cout << "Enter age.\n";
+        cin >> age;
 
-    cout << "Enter sex.\n";
-    cin >> sex;
+        cout << "Enter sex.\n";
+        cin >> sex;
 
-    cin.ignore();
+        cin.ignore();
 
-    cout << "Enter disorder.\n";
-    cin.getline(disorder, 100);
+        cout << "Enter disorder.\n";
+        cin.getline(disorder, 100);
 
-    patient_id = ++number;
+        if(!isValid(patientName) || !isValid(age) || !isValid(sex) || !isValid(disorder))
+            throw 101;
+    }
+
+    catch(int e)
+    {
+        cout << "There has been an error in the input. Enter anything to return to menu.\n";
+        error = true;
+        getch();
+        return;
+    }
+
+    patientID = ++number;
+    error = false;
     //ofstream writer("database.txt", ios::out | ios::app)
+}
+
+bool isValid(char x[])
+{
+    for(int i = 0; i < strlen(x); i++)
+        if(!isalpha(x[i])) return false;
+    return true;
+}
+
+bool isValid(char x)
+{
+    if(x == 'M' || x == 'm' || x == 'F' || x == 'f') return true;
+    else return false;
+}
+
+bool isValid(int x)
+{
+    if(x <= 0 || x >= 120) return false;
+    else return true;
 }
 
 /*
