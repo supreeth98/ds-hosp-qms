@@ -27,18 +27,17 @@ class identity
 
 struct patient
 {
-    string patient_name;
-    int patient_id;
+    char patient_name[100];
     int age;
     char sex;
 
-    string doctor_name;
-    string disorder;
+    char disorder[100];
 
+    int patient_id;
     static int number;
 
     patient();
-    patient(int);
+    //patient(int);
     patient *next;
     patient *prev;
 };
@@ -94,28 +93,42 @@ int main()
             {
                 if(!head)
                 {
-                    cout << "Queue is empty.\n";
+                    cout << "Your queue is empty!\n";
+                    getch();
                     break;
                 }
 
                 for(patient *i = head; i; i = i->next)
                 {
                     cout << "PATIENT NAME : " << i->patient_name << endl;
+                    cout << "PATIENT SEX : " << i->sex << endl;
                     cout << "PATIENT ID : " << i->patient_id << endl;
                     cout << "DISORDER : " << i->disorder << endl;
-                    cout << "DOCTOR NAME : " << i->doctor_name << endl;
-
-                    cout << "\n\n\n";
+                    cout << "\n\n";
                 }
+
+                getch();
+
                 break;
             }
 
         case 3:
             {
+
+                if(!head)
+                {
+                    cout << "Your queue is empty!\n";
+                    getch();
+                    break;
+                }
+
                 patient *temp = head;
                 head = head->next;
-                cout << temp->patient_name << " has been sent to " << temp->doctor_name << endl;
+                cout << temp->patient_name << " has been sent to the doctor.\n";
                 delete temp;
+
+                getch();
+
                 break;
             }
 
@@ -126,7 +139,10 @@ int main()
             }
 
         default:
-            cout << "Invalid option.\n";
+            {
+                cout << "Invalid option.\n";
+                getch();
+            }
 
         }
         system("cls");
@@ -140,15 +156,20 @@ Accepts data for a new patient and saves it to file.
 
 patient::patient()
 {
-    cout << "Enter patient name, age and sex.\n";
-    getline(cin, patient_name);
-    cin >> age >> sex;
+    cin.ignore();
+    cout << "Enter patient name\n";
+    cin.getline(patient_name, 100);
 
-    cout << "Enter doctor name.\n";
-    getline(cin, doctor_name);
+    cout << "Enter age.\n";
+    cin >> age;
+
+    cout << "Enter sex.\n";
+    cin >> sex;
+
+    cin.ignore();
 
     cout << "Enter disorder.\n";
-    getline(cin, disorder);
+    cin.getline(disorder, 100);
 
     patient_id = ++number;
     //ofstream writer("database.txt", ios::out | ios::app)
