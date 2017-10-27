@@ -10,59 +10,41 @@ A Database is stored as a file, that allows to directly enter patient details vi
 #include <conio.h>
 #include <cstdlib>
 #include <cctype>
+#include <vector>
 
 using namespace std;
 
-/* A Singleton class to get id
-
-class identity
-{
-    static identity *instance;
-    identity();
-
-    pulbic:
-    int id;
-    static identity *make_instance();
-};
-
-*/
-
 struct patient
 {
-    char patientName[100];
+    string patientName;
     int age;
     char sex;
 
-    char disorder[100];
+    string disorder;
 
     int patientID;
     static int number;
 
     patient();
-    //patient(int);
+    patient(int);
     patient *next;
     patient *prev;
+
+    void prettifyData();
+    string prettifyString(string);
+    bool isValid(string);
+    bool isValid(char);
+    bool isValid(int);
 };
 
 int patient::number = 0;
 patient *head = NULL;
 patient *tail = NULL;
 
-bool isValid(char[]);
-bool isValid(char);
-bool isValid(int);
-
 static bool error = false;
 
 int main()
 {
-    /*
-    cout << "Enter username and password.\n";
-    string name, password;
-    getline(cin, name);
-    getline(cin, password);
-    */
-
     while(true)
     {
         cout << "HOSPITAL MANAGEMENT SYSTEM\n";
@@ -161,28 +143,24 @@ int main()
     return 0;
 }
 
-/*
-Accepts data for a new patient and saves it to file.
-*/
-
 patient::patient()
 {
     cin.ignore();
-    cout << "Enter patient name\n";
     try
     {
-        cin.getline(patientName, 100);
+        cout << "Enter patient name.\n";
+        getline(cin, patientName);
 
         cout << "Enter age.\n";
         cin >> age;
 
-        cout << "Enter sex.\n";
+        cout << "Enter sex.(M/F)\n";
         cin >> sex;
 
         cin.ignore();
 
         cout << "Enter disorder.\n";
-        cin.getline(disorder, 100);
+        getline(cin, disorder);
 
         if(!isValid(patientName) || !isValid(age) || !isValid(sex) || !isValid(disorder))
             throw 101;
@@ -198,52 +176,67 @@ patient::patient()
 
     patientID = ++number;
     error = false;
-    //ofstream writer("database.txt", ios::out | ios::app)
+    prettifyData();
+
+    cout << "Patient has been added to queue. Press any key to continue.\n";
+    getch();
 }
 
-bool isValid(char x[])
+bool patient::isValid(string x)
 {
-    for(int i = 0; i < strlen(x); i++)
-        if(!isalpha(x[i])) return false;
-    return true;
+    int letterCount = 0;
+    for(int i = 0; i < x.length(); i++)
+    {
+        if(isalpha(x[i]))
+            letterCount++;
+        if(!isalpha(x[i]) && x[i] != ' ')
+            return false;
+    }
+    return letterCount ? true : false;
 }
 
-bool isValid(char x)
+bool patient::isValid(char x)
 {
     if(x == 'M' || x == 'm' || x == 'F' || x == 'f') return true;
     else return false;
 }
 
-bool isValid(int x)
+bool patient::isValid(int x)
 {
     if(x <= 0 || x >= 120) return false;
     else return true;
 }
 
-/*
-Allows to create a new patient from scratch
-
-patient::patient(int x)
+string patient::prettifyString(string a)
 {
-    ifstream reader("database.txt");
+    a = " " + a + " ";
+    vector <int> nextLetter, prevLetter;
+    for(int i = 0; i < a.length() - 1; i++)
+    {
+        if(a[i] == ' ' && isalpha(a[i + 1])) nextLetter.push_back(i);
+        if(isalpha(a[i]) && a[i + 1] == ' ') prevLetter.push_back(i);
+    }
 
+    string x;
 
+    int i = 0;
 
+    while(i < nextLetter.size() && i < prevLetter.size())
+    {
+        string temp = a.substr(nextLetter[i] + 1, prevLetter[i] - nextLetter[i]);
+        temp[0] = toupper(temp[0]);
+        x += temp + " ";
+        i++;
+    }
+
+    return x;
 }
 
-Singleton class functions
-
-identity::identity()
+void patient::prettifyData()
 {
-    ifstream reader("number.txt");
-    reader >> id;
-    reader.close();
-}
+    patientName = prettifyString(patientName);
+    disorder = prettifyString(disorder);
 
-identity::make_instance()
-{
-    if(!instance) instance = new identity;
-    else return instance;
+    if(sex == 'f') sex = 'F';
+    if(sex == 'm') sex = 'M';
 }
-
-*/
